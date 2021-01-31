@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Circular Linked List Visualizer</title>
+</head>
+<body>
+<h1>Circular Linked List Visualizer</h1>
+<input id="list-input" value="1, 2, 3, 4, 5, 6, 7"></input>
+<button class="btn">draw</button><br><br>
+<div id="caption"></div>
+<canvas class="canvas" width="400" height="200" style="border: 1px solid black"></canvas><br />
+<script>
+function arrow (ang, x, y, r) {
+  circle.save();
+  circle.translate(x+r*Math.cos(ang), y+r*Math.sin(ang));
+  circle.rotate(ang);
+  circle.beginPath();
+  circle.moveTo(-5, -5);
+  circle.lineTo(0, 0);
+  circle.lineTo(5, -5);
+  circle.stroke();
+  circle.restore();
+}
+
+let canvas = document.querySelector(".canvas");
+var circle = canvas.getContext("2d");
+let btn = document.querySelector(".btn");
+
+function generateImage () {
+  // parameters
+  const x = 180;
+  const y = 100;
+  const r = 70;
+  const sf = 1/4;
+  
+  // create caption
+  let s = document.getElementById("list-input").value;
+  document.getElementById("caption").innerHTML = "drawing of " + s;
+  
+  // determine points
+  labels = s.split(',');
+  let points = [];
+  const aincr = 2 * Math.PI / labels.length;
+  let a = Math.PI;
+  for (let i = 0; i < labels.length; i++) {
+      let sangle = a + Math.PI, eangle = a + Math.PI + aincr;
+	  if (sangle > 2 * Math.PI) sangle = sangle - 2 * Math.PI;
+	  if (eangle > 2 * Math.PI) eangle = eangle - 2 * Math.PI;
+      let xtext = 0, ytext = 0;
+      if (eangle == 0 || eangle == Math.PI/2 || eangle == Math.PI || eangle == 3*Math.PI/2 || eangle == 2*Math.PI) {
+        if (eangle == Math.PI/2) xtext = x, ytext = y - r;
+        else if (eangle == Math.PI) xtext = x + r, ytext = y;
+        else if (eangle == 3*Math.PI/2) xtext = x, ytext = y + r;
+        else xtext = x - r, ytext = y;
+      }
+      else {
+		let quadrant = (eangle < Math.PI/2) ? 1 : (eangle < Math.PI) ? 2 : (eangle < 3*Math.PI/2) ? 3 : 4;
+        if (quadrant == 1) { // quadrant 1
+          let theta = eangle;
+          let dx = r * Math.cos(eangle), dy = r * Math.sin(eangle);
+          xtext = x - dx, ytext = y - dy;
+        }
+        else if (quadrant == 2) { // quadrant 2
+          let theta = eangle - Math.PI / 2
+          let dx = r * Math.cos(eangle), dy = r * Math.sin(eangle);
+          xtext = x - dx, ytext = y - dy;
+        }
+        else if (quadrant == 3) { // quadrant 3
+          let theta = eangle - Math.PI;
+          let dx = r * Math.cos(eangle), dy = r * Math.sin(eangle);
+          xtext = x - dx, ytext = y - dy;
+        }
+        else { // quadrant 4
+          let theta = eangle - 3*Math.PI/2;
+          let dx = r * Math.cos(eangle), dy = r * Math.sin(eangle);
+          xtext = x - dx, ytext = y - dy;
+        }
+      }
+      let point = {
+          start: (a + aincr * sf),
+          end: (a + aincr - aincr * sf),
+          xtext: xtext,
+          ytext: ytext,
+          label: labels[i],
+      };
+      points.push(point);
+      a += aincr;
+  }
+  
+  for(let point of points) {
+    circle.beginPath();
+    circle.arc(x, y, r, point.start, point.end);
+    circle.stroke();
+    arrow(point.end, x, y, r);
+    circle.beginPath();
+    circle.textAlign = 'center';
+    circle.textBaseline = 'middle';
+    circle.font = '' + 20 * Math.pow(0.95, points.length) + 'px Arial';
+    circle.fillText(point.label, point.xtext, point.ytext);
+  }
+}
+
+generateImage();
+
+btn.addEventListener("click", () => {
+  
+  // clear canvas
+  var context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // fill canvas
+  generateImage();
+});
+</script>
+</body>
+</html>
