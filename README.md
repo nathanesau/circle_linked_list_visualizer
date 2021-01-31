@@ -2,6 +2,10 @@
 
 Visualizations for Data Structures, written in Vanilla Javascript.
 
+## Site Link
+
+https://nathanesau.github.io/data_structure_visualizations
+
 ## Code
 
 * [Circular Linked List](docs/circular_linked_list_visualizer/index.html)
